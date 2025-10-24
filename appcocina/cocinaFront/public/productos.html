@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Productos</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./styles/styles.css" />
+  </head>
+  <body class="bg-gray" onload="cargarTodo()">
+    <div class="container mt-4">
+      <div class="d-flex justify-content-end mb-3">
+        <a href="agregarProducto.html" class="btn btn-primary"
+          >Agregar Producto</a
+        >
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title text-primary fw-bold">Entradas</h5>
+          <table class="table table-striped table-bordered table-hover">
+            <thead class="table">
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Status</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyEntradas"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title text-primary fw-bold">Comida</h5>
+          <table class="table table-striped table-bordered table-hover">
+            <thead class="table">
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Status</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyComida"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title text-primary fw-bold">Bebidas</h5>
+          <table class="table table-striped table-bordered table-hover">
+            <thead class="table">
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Status</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyBebidas"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <script>
+      const url = "http://localhost:3000";
+
+      // mostrar entradas en la tabla
+      function cargarEntradas() {
+        const requestOptions = {
+          method: "GET",
+          redirect: "follow",
+        };
+
+        fetch(`${url}/api/productos/categoria/3`, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            console.log(result);
+            let tbody = document.getElementById("tbodyEntradas");
+            result.forEach((element) => {
+              let tr = document.createElement("tr");
+              let td = document.createElement("td");
+              // Nombre
+              td.textContent = element.nombre;
+              tr.appendChild(td);
+              // descripcion
+              let tdDescripcion = document.createElement("td");
+              tdDescripcion.textContent = element.descripcion;
+              tr.appendChild(tdDescripcion);
+              //precio
+              let tdPrecio = document.createElement("td");
+              tdPrecio.textContent = element.precio;
+              tr.appendChild(tdPrecio);
+              // status
+              let tdStatus = document.createElement("td");
+              tdStatus.textContent = element.status;
+              tr.appendChild(tdStatus);
+              const isActivo =
+                element.status === "activo" || element.status === true;
+              //acciones
+              let tdAcciones = document.createElement("td");
+              tdAcciones.innerHTML = `
+                <div class="d-flex gap-2">
+                  <a href="/editarProducto.html?id=${
+                    element.id
+                  }" class="btn btn-sm btn-primary">Editar</a>
+                  <button class="btn btn-sm ${
+                    isActivo ? "btn-danger" : "btn-success"
+                  }" onclick="cambiarEstado(${element.id}, ${isActivo})">
+                    ${isActivo ? "Desactivar" : "Activar"}
+                </div>`;
+              tr.appendChild(tdAcciones);
+              tbody.appendChild(tr);
+            });
+          })
+          .catch((error) => console.error(error));
+      }
+
+      // mostrar comida en la tabla
+      function cargarComida() {
+        const requestOptions = {
+          method: "GET",
+          redirect: "follow",
+        };
+
+        fetch(`${url}/api/productos/categoria/1`, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            console.log(result);
+            let tbody = document.getElementById("tbodyComida");
+            result.forEach((element) => {
+              let tr = document.createElement("tr");
+              let td = document.createElement("td");
+              // Nombre
+              td.textContent = element.nombre;
+              tr.appendChild(td);
+              // descripcion
+              let tdDescripcion = document.createElement("td");
+              tdDescripcion.textContent = element.descripcion;
+              tr.appendChild(tdDescripcion);
+              //precio
+              let tdPrecio = document.createElement("td");
+              tdPrecio.textContent = element.precio;
+              tr.appendChild(tdPrecio);
+              // status
+              let tdStatus = document.createElement("td");
+              tdStatus.textContent = element.status;
+              tr.appendChild(tdStatus);
+              //acciones
+              const tdAcciones = document.createElement("td");
+              tdAcciones.innerHTML = `
+              <div class="d-flex gap-2">
+                <a href="/editarProducto.html?id=${element.id}" class="btn btn-sm btn-primary">Editar</a>
+                <button class="btn btn-sm btn-danger" onclick="borrarProducto(${element.id})">Borrar</button>
+              </div>`;
+              tr.appendChild(tdAcciones);
+              tbody.appendChild(tr);
+            });
+          })
+          .catch((error) => console.error(error));
+      }
+
+      // mostrar bebidas en la tabla
+      function cargarBebidas() {
+        const requestOptions = {
+          method: "GET",
+          redirect: "follow",
+        };
+
+        fetch(`${url}/api/productos/categoria/2`, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            console.log(result);
+            let tbody = document.getElementById("tbodyBebidas");
+            result.forEach((element) => {
+              let tr = document.createElement("tr");
+              let td = document.createElement("td");
+              // Nombre
+              td.textContent = element.nombre;
+              tr.appendChild(td);
+              // descripcion
+              let tdDescripcion = document.createElement("td");
+              tdDescripcion.textContent = element.descripcion;
+              tr.appendChild(tdDescripcion);
+              //precio
+              let tdPrecio = document.createElement("td");
+              tdPrecio.textContent = element.precio;
+              tr.appendChild(tdPrecio);
+              // status
+              let tdStatus = document.createElement("td");
+              tdStatus.textContent = element.status;
+              tr.appendChild(tdStatus);
+              //acciones
+              const tdAcciones = document.createElement("td");
+              tdAcciones.innerHTML = `
+              <div class="d-flex gap-2">
+                <a href="/editarProducto.html?id=${element.id}" class="btn btn-sm btn-primary">Editar</a>
+                <button class="btn btn-sm btn-danger" onclick="borrarProducto(${element.id})">Borrar</button>
+              </div>`;
+              tr.appendChild(tdAcciones);
+              tbody.appendChild(tr);
+            });
+          })
+          .catch((error) => console.error(error));
+      }
+
+      function cambiarEstado(id, isActivo) {
+        const requestOptions = {
+          method: "PATCH",
+          redirect: "follow",
+        };
+
+        fetch(`${url}/api/productos/${id}`, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            alert("Estado Actualizado");
+            location.reload();
+          })
+          .catch((error) => console.error(error));
+      }
+
+      function cargarTodo() {
+        cargarEntradas();
+        cargarComida();
+        cargarBebidas();
+      }
+    </script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
