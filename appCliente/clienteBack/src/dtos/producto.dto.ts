@@ -18,7 +18,7 @@ export interface ProductoEnvio {
   id: number;
   nombre: string;
   precio: number;
-  comenteario: string;
+  comentario: string;
 
 
 }

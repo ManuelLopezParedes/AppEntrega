@@ -26,3 +26,5 @@ export const obtenerPorCategoria = async (
   const productos = await productoRepositorio.obtenerPorCategoria(categoria);
   res.status(200).json(productos);
 };
+
+// subir producto
