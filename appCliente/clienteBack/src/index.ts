@@ -1,6 +1,9 @@
 import express, { Request, Response } from "express"
 import dotenv from "dotenv"
 import cors from "cors"
+import { connectDB } from "./lib/mongo";
+import { clienteRouter } from "./routers/cliente.router";
+import { productoRouter } from "./routers/producto.repositorio";
 
 dotenv.config();
 
@@ -15,6 +18,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 async function main() {
+    await connectDB();
+    app.use("/api", clienteRouter)
+    app.use("/api", productoRouter)
+
     app.get("/", (req: Request, res: Response) => {
         res.send("App Cliente")
     })

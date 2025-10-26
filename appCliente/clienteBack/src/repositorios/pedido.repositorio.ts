@@ -1,11 +1,14 @@
 import { Collection } from "mongodb";
 import { getDB } from "../lib/mongo";
+import { ProductoEnvio } from "../dtos/producto.dto";
 
 export interface Pedido{
     id: number;
-    descripcion: Object;
+    descripcion: ProductoEnvio[];
     total: number;
     status: string;
+    dirección: string;
+    
 }
 
 export async function siguienteID(): Promise<number> {

@@ -18,10 +18,9 @@ export async function obtenerSiguiente(): Promise<number> {
     const db = getDB();
     const total = await db.collection("empleado").countDocuments();
     return total + 1
-
 }
 
-export async function obtenerPorId(id: NumberConstructor): Promise<Cliente | null> {
+export async function obtenerPorId(id: number): Promise<Cliente | null> {
     const db = getDB();
     const clienteCollection: Collection<Cliente> = db.collection<Cliente>("cliente");
     return await clienteCollection.findOne({ id })
