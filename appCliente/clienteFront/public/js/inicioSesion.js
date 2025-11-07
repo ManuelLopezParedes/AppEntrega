@@ -43,7 +43,9 @@ async function handleLogin(event) {
     const result = await iniciarSesion(correo, contraseña);
 
     console.log(result);
-    localStorage.setItem("token", result.token);
+    localStorage.setItem("token", result.token.token);
+    localStorage.setItem("usuarioID", result.usuario.id);
+    localStorage.setItem("usuario", result.usuario.nombres)
     showResult(messageDiv, true, "Inicio de sesión exitoso. Redirigiendo...");
 
     window.location.href = "index.html";

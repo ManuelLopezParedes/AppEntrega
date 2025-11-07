@@ -5,6 +5,7 @@ import {
   iniciarSesion as iniciarSesionBusiness,
   hashearContra,
 } from "../business/cliente.business";
+import { ResolutionMode } from "typescript";
 
 export const obtenerPorId = async (
   req: Request,
@@ -21,13 +22,13 @@ export const obtenerPorCorreo = async (
 ): Promise<Response> => {
   const correo = req.params.correo;
   const cliente = await clienteRepositorio.obtenerPorCorreo(correo);
-   return res.status(200).json(cliente);
+  return res.status(200).json(cliente);
 };
 
 export const agregarCliente = async (
   req: Request,
   res: Response
-): Promise<void> => {
+): Promise<Response> => {
   const {
     nombres,
     primerApellido,
@@ -37,17 +38,25 @@ export const agregarCliente = async (
     correo,
     contraseña,
     telefono,
+    direccion,
     cp,
-    direccion
+    alias,
   } = req.body;
 
   const verificacion = await clienteRepositorio.obtenerPorCorreo(correo);
   if (verificacion != undefined) {
-    res
+    return res
       .status(208)
       .json({ mensaje: "el correo ya ha sido registrado anteriormente" });
   }
-  // verificar correo
+
+  const lista = {
+    direccion: direccion,
+    cp: cp,
+    alias: alias,
+    status: "activo",
+  };
+
   const cliente = {
     id: await clienteRepositorio.obtenerSiguiente(),
     nombres,
@@ -56,14 +65,13 @@ export const agregarCliente = async (
     fechaNacimiento,
     sexo,
     correo,
-    cp: [cp],
-    direccion: [direccion],
+    direccion: [lista],
     telefono,
     contraseña: await hashearContra(contraseña),
     status: "activo",
   };
   await clienteRepositorio.agregarCliente(cliente);
-  res.status(201).json({ id: cliente.id, mensaje: "Dato guardado" });
+  return res.status(201).json({ id: cliente.id, mensaje: "Dato guardado" });
 };
 
 export const editarCliente = async (
@@ -99,3 +107,9 @@ export const iniciarSesion = async (req: Request, res: Response) => {
     res.status(200).json(tokenDto);
   }
 };
+
+export const obtenerDireccion = async (req:Request, res:Response) => {
+  const id = parseInt(req.params.id)
+  const direccion = await clienteRepositorio.obtenerDireccion(id);
+  res.status(200).json(direccion)
+}

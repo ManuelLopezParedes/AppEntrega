@@ -14,6 +14,7 @@ function getElements() {
     telefono: document.getElementById("telefono"),
     correo: document.getElementById("correo"),
     contraseña: document.getElementById("contraseña"),
+    alias: document.getElementById("alias")
   };
 }
 
@@ -29,6 +30,7 @@ function getFormData() {
     telefono,
     correo,
     contraseña,
+    alias
   } = getElements();
 
   return {
@@ -42,6 +44,7 @@ function getFormData() {
     telefono: telefono.value,
     correo: correo.value,
     contraseña: contraseña.value,
+    alias: alias.value
   };
 }
 
@@ -61,7 +64,7 @@ async function handleRegistro(event) {
     console.log(result);
     alert("Cuenta creada");
 
-    window.location.href = "index.html";
+    window.location.href = "inicioSesion.html";
   } catch (error) {
     console.error("Error en el registro:", error);
     alert(`Fallo en el registro: ${error.message}`);

@@ -1,28 +1,31 @@
-import { InicioSesionDto, TokenDto } from "../dtos/cliente.dto";
-import {
-  obtenerPorCorreo,
-  Cliente,
-} from "../repositorios/cliente.repositorio";
-import bcrypt from "bcrypt"
+import { InicioSesionDto, Login, TokenDto, Usuario } from "../dtos/cliente.dto";
+import { obtenerPorCorreo, Cliente } from "../repositorios/cliente.repositorio";
+import bcrypt from "bcrypt";
 
 export async function iniciarSesion(
   inicioSesion: InicioSesionDto
-): Promise<TokenDto | undefined> {
+): Promise<Login | undefined> {
   const cliente = await obtenerPorCorreo(inicioSesion.correo);
-  if(cliente == undefined){
-    return undefined
-  }
-
-  if (await esValida(cliente?.contraseña, inicioSesion.contraseña)) {
-    // devolver token
-    const tokenDto: TokenDto = {
-      token: crearToken(cliente),
-      fecha: new Date()
-    };
-    return tokenDto;
-  } else {
+  if (cliente == undefined) {
     return undefined;
   }
+
+  if (!(await esValida(cliente.contraseña, inicioSesion.contraseña))) {
+    return undefined;
+  }
+
+  const usuario: Usuario = {
+    id: cliente.id,
+    nombres: cliente.nombres,
+  };
+  
+  // devolver token
+  const tokenDto: TokenDto = {
+    token: crearToken(cliente),
+    fecha: new Date(),
+  };
+  const login = { token: tokenDto, usuario: usuario };
+  return login;
 }
 
 function esValida(
