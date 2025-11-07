@@ -18,17 +18,20 @@ export const obtenerPorId = async (
   res.status(200).json(producto);
 };
 
-export const obtenerPorCategoria = async (req:Request, res:Response): Promise<void> =>{
+export const obtenerPorCategoria = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const categoria: number = parseInt(req.params.categoria);
   const productos = await productoRepositorio.obtenerPorCategoria(categoria);
-  res.status(200).json(productos)
-}
+  res.status(200).json(productos);
+};
 
 export const agregarProducto = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { nombre, descripcion, precio, id_categoria } = req.body;
+  const { nombre, descripcion, precio, id_categoria, imagen } = req.body;
 
   const producto = {
     id: await productoRepositorio.siguienteId(),
@@ -36,6 +39,7 @@ export const agregarProducto = async (
     descripcion,
     precio,
     id_categoria,
+    imagen: `/imagenes/${imagen}`,
     status: "activo",
   };
 
@@ -52,7 +56,16 @@ export const actualizarProducto = async (
   res: Response
 ): Promise<void> => {
   const id = parseInt(req.params.id);
-  const producto = req.body;
+  const editar = req.body;
+  const producto = {
+    id: editar.id,
+    nombre: editar.nombre,
+    descripcion: editar.descripcion,
+    precio: editar.precio,
+    id_categoria: editar.id_categoria,
+    imagen: `/imagenes/${editar.imagen}`,
+    status: editar.status,
+  };
   await productoRepositorio.actualizarProducto(id, producto);
   res.status(200).json({
     id: id,
@@ -61,14 +74,17 @@ export const actualizarProducto = async (
   });
 };
 
-export const cambiarEstado = async (req: Request, res:Response): Promise<void> =>{
+export const cambiarEstado = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const id = parseInt(req.params.id);
   const producto = await productoRepositorio.obtenerPorId(id);
-  const productoStatus = producto?.status
-  if(productoStatus == "activo"){
-    await productoRepositorio.borrarProducto(id)
-  }else{
-    await productoRepositorio.activarProducto(id)
-  };
-  res.status(200).json({mensaje: "estado cambiado"})
-}
+  const productoStatus = producto?.status;
+  if (productoStatus == "activo") {
+    await productoRepositorio.borrarProducto(id);
+  } else {
+    await productoRepositorio.activarProducto(id);
+  }
+  res.status(200).json({ mensaje: "estado cambiado" });
+};

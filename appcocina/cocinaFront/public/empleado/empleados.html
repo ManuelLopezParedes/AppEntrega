@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Usuarios</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./styles/styles.css" />
+  </head>
+  <body class="bg-gray" onload="cargarEmpleados()">
+    <div class="container mt-4">
+      <div class="d-flex justify-content-end mb-3">
+        <a href="/agregarEmpleado.html" class="btn btn-primary"
+          >Agregar Empleado</a
+        >
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-primary fw-bold mb-3">
+            Lista de Empleados
+          </h5>
+          <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+              <thead class="table">
+                <tr>
+                  <th class="text-center">CURP</th>
+                  <th class="text-center">Nombre(s)</th>
+                  <th class="text-center">Apellidos</th>
+                  <th class="text-center">Estado</th>
+                  <th class="text-center">Sexo</th>
+                  <th class="text-center">Fecha de Nacimiento</th>
+                  <th class="text-center">Correo</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyEmpleados"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const url = "http://localhost:3000";
+      function cargarEmpleados() {
+        const requestOptions = {
+          method: "GET",
+          redirect: "follow",
+        };
+
+        fetch(`${url}/api/empleados`, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            console.log(result);
+            let tbody = document.getElementById("tbodyEmpleados");
+            result.forEach((element) => {
+              let tr = document.createElement("tr");
+              let td = document.createElement("td");
+              // columna curp
+              td.textContent = element.curp;
+              tr.appendChild(td);
+              // columna nombre(s)
+              let tdNombre = document.createElement("td");
+              tdNombre.textContent = element.nombres;
+              tr.appendChild(tdNombre);
+              // columna apellidos
+              let tdApellidos = document.createElement("td");
+              tdApellidos.textContent =
+                element.primerApellido + " " + element.segundoApellido;
+              tr.appendChild(tdApellidos);
+              // columna Estado
+              let tdEstado = document.createElement("td");
+              tdEstado.textContent = element.estado.estado;
+              tr.appendChild(tdEstado);
+              // columna Sexo
+              let tdSexo = document.createElement("td");
+              tdSexo.textContent = element.sexo;
+              tr.appendChild(tdSexo);
+              // Columna Fecha_Nacimiento
+              let tdFecha = document.createElement("td");
+              const fechaTexto = element.fechaNacimiento.split("T")[0];
+              const [año, mes, dia] = fechaTexto.split("-");
+              tdFecha.textContent = `${dia}/${mes}/${año}`;
+              tr.appendChild(tdFecha);
+              //columna correo
+              let tdCorreo = document.createElement("td");
+              tdCorreo.textContent = element.correo;
+              tr.appendChild(tdCorreo);
+              // columna Editar
+              let tdAcciones = document.createElement("td");
+              tdAcciones.innerHTML = `<a href="/editarEmpleado.html?curp=${element.curp}">Editar</a> |
+                <a href="#" onclick="borrarEmpleado('${element.id}')">Borrar</a> `;
+              tr.appendChild(tdAcciones);
+              tbody.appendChild(tr);
+            });
+          })
+          .catch((error) => console.error(error));
+      }
+
+      function borrarEmpleado(id) {
+        const requestOptions = {
+          method: "PATCH",
+          redirect: "follow",
+        };
+
+        fetch(`${url}/api/empleados/${id}`, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            alert("Usuario borrado");
+            location.reload();
+          })
+          .catch((error) => console.error(error));
+      }
+    </script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

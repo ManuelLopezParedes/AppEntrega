@@ -1,5 +1,10 @@
+import { InicioSesionDto } from "../dtos/cliente.dto";
 import * as clienteRepositorio from "../repositorios/cliente.repositorio";
 import { Request, Response } from "express";
+import {
+  iniciarSesion as iniciarSesionBusiness,
+  hashearContra,
+} from "../business/cliente.business";
 
 export const obtenerPorId = async (
   req: Request,
@@ -13,10 +18,10 @@ export const obtenerPorId = async (
 export const obtenerPorCorreo = async (
   req: Request,
   res: Response
-): Promise<void> => {
+): Promise<Response> => {
   const correo = req.params.correo;
   const cliente = await clienteRepositorio.obtenerPorCorreo(correo);
-  res.status(200).json(cliente);
+   return res.status(200).json(cliente);
 };
 
 export const agregarCliente = async (
@@ -31,7 +36,17 @@ export const agregarCliente = async (
     sexo,
     correo,
     contraseña,
+    telefono,
+    cp,
+    direccion
   } = req.body;
+
+  const verificacion = await clienteRepositorio.obtenerPorCorreo(correo);
+  if (verificacion != undefined) {
+    res
+      .status(208)
+      .json({ mensaje: "el correo ya ha sido registrado anteriormente" });
+  }
   // verificar correo
   const cliente = {
     id: await clienteRepositorio.obtenerSiguiente(),
@@ -41,7 +56,10 @@ export const agregarCliente = async (
     fechaNacimiento,
     sexo,
     correo,
-    contraseña, // hashear contraseña
+    cp: [cp],
+    direccion: [direccion],
+    telefono,
+    contraseña: await hashearContra(contraseña),
     status: "activo",
   };
   await clienteRepositorio.agregarCliente(cliente);
@@ -65,4 +83,19 @@ export const borrarCliente = async (
   const id = parseInt(req.params.id);
   await clienteRepositorio.borrarCliente(id);
   res.status(200).json({ id: id, mensaje: "Dato eliminado" });
+};
+
+export const iniciarSesion = async (req: Request, res: Response) => {
+  const inicioSesionDto: InicioSesionDto = {
+    correo: req.body.correo,
+    contraseña: req.body.contraseña,
+  };
+  const tokenDto = await iniciarSesionBusiness(inicioSesionDto);
+  if (tokenDto == undefined) {
+    res.status(404).json({
+      mensaje: "credenciales invalidas",
+    });
+  } else {
+    res.status(200).json(tokenDto);
+  }
 };

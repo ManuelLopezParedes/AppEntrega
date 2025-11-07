@@ -1,4 +1,3 @@
-import { promises } from "dns";
 import { getDB } from "../lib/mongo";
 import { Collection } from "mongodb";
 

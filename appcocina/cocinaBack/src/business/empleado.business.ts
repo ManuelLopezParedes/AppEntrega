@@ -1,4 +1,4 @@
-import { EmpleadoDto, InicioSesionDto, TokenDto } from "../dtos/empleado.dto";
+import { InicioSesionDto, TokenDto } from "../dtos/empleado.dto";
 import {
   obtenerPorCorreo,
   Empleado,

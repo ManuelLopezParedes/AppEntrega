@@ -10,17 +10,20 @@ export interface Cliente {
     sexo: string;
     correo: string;
     contraseña: string;
-    // telefono: number;
+    telefono: string;
+    direccion: string[];
+    cp: number[];
     status: string;
 }
 
 export async function obtenerSiguiente(): Promise<number> {
     const db = getDB();
-    const total = await db.collection("empleado").countDocuments();
+    const total = await db.collection("cliente").countDocuments();
     return total + 1
 }
 
-export async function obtenerPorId(id: number): Promise<Cliente | null> {
+//eliminar propiedad contraseña
+export async function obtenerPorId(id: number): Promise<Cliente | null> { 
     const db = getDB();
     const clienteCollection: Collection<Cliente> = db.collection<Cliente>("cliente");
     return await clienteCollection.findOne({ id })

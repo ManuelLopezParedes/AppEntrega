@@ -1,22 +1,25 @@
 import { MongoClient, Db } from "mongodb"
+import dotenv from "dotenv"
+dotenv.config();
 
 if (!process.env.URI) {
-    throw new Error("LA variabl URI no esta definida")
+    throw new Error("La variable URI no esta definida")
 }
 
 const uri: string = process.env.URI;
-const cliente = new MongoClient(uri);
+const client = new MongoClient(uri);
 
 let db: Db | null = null;
 
 export async function connectDB(): Promise<void> {
-    try {
-        await cliente.db("Cocina");
-        console.log("Conectado a mongoDB")
-    } catch (error: any) {
-        console.log("error al conectar a Mongo", error.message);
-        process.exit(1);
-    }
+  try {
+    await client.connect();
+    db = client.db("cocina");
+    console.log("conectado a MongoDB");
+  } catch (eror: any) {
+    console.error("error al conectar a Mongo", eror.message);
+    process.exit(1);
+  }
 }
 
 export function getDB(): Db {

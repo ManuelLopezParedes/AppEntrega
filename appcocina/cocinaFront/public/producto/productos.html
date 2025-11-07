@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Productos</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./styles/styles.css" />
+  </head>
+  <body class="bg-gray" onload="cargarCategoriasYProductos()">
+    <div class="container mt-4">
+      <div class="d-flex justify-content-end mb-3 gap-2">
+        <a href="agregarProducto.html" class="btn btn-primary"
+          >Agregar Producto</a
+        >
+        <a href="agregarCategoria.html" class="btn btn-primary"
+          >Agregar Categoria</a
+        >
+      </div>
+
+      <div id="categorias-container"></div>
+    </div>
+
+    <script>
+      const url = "http://localhost:3000";
+
+      function obtenerCategorias() {
+        const requestOptions = {
+          method: "GET",
+          redirect: "follow",
+        };
+
+        // Devuelve la promesa para poder usar .then()
+        return fetch(`${url}/api/categorias`, requestOptions)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("No se pudieron cargar las categorías");
+            }
+            return response.json();
+          })
+          .catch((error) => {
+            console.error("Error en obtenerCategorias:", error);
+            return [];
+          });
+      }
+
+      function cargarProductosPorCategoria(categoriaId, tbodyId) {
+        const requestOptions = {
+          method: "GET",
+          redirect: "follow",
+        };
+
+        fetch(`${url}/api/productos/categoria/${categoriaId}`, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            console.log(`Productos para categoría ${categoriaId}:`, result);
+            let tbody = document.getElementById(tbodyId);
+
+            if (!tbody) {
+              console.error(`Elemento tbody no encontrado: ${tbodyId}`);
+              return;
+            }
+
+            // Limpiamos el tbody por si acaso
+            tbody.innerHTML = "";
+
+            // Si no hay productos, mostramos un mensaje
+            if (result.length === 0) {
+              let tr = document.createElement("tr");
+              tr.innerHTML = `<td colspan="5" class="text-center">No hay productos en esta categoría.</td>`;
+              tbody.appendChild(tr);
+              return;
+            }
+
+            // Llenamos la tabla con los productos
+            result.forEach((element) => {
+              let tr = document.createElement("tr");
+
+              // Nombre
+              let tdNombre = document.createElement("td");
+              tdNombre.textContent = element.nombre;
+              tr.appendChild(tdNombre);
+
+              // Descripcion
+              let tdDescripcion = document.createElement("td");
+              tdDescripcion.textContent = element.descripcion;
+              tr.appendChild(tdDescripcion);
+
+              // Precio
+              let tdPrecio = document.createElement("td");
+              tdPrecio.textContent = element.precio;
+              tr.appendChild(tdPrecio);
+
+              // Status
+              let tdStatus = document.createElement("td");
+              tdStatus.textContent = element.status;
+              tr.appendChild(tdStatus);
+
+              // Acciones
+              const isActivo =
+                element.status === "activo" || element.status === true;
+              let tdAcciones = document.createElement("td");
+              tdAcciones.innerHTML = `
+                <div class="d-flex gap-2">
+                  <a href="editarProducto.html?id=${
+                    element.id
+                  }" class="btn btn-sm btn-primary">Editar</a>
+                  <button class="btn btn-sm ${
+                    isActivo ? "btn-danger" : "btn-success"
+                  }" onclick="cambiarEstado(${element.id}, ${isActivo})">
+                    ${isActivo ? "Desactivar" : "Activar"}
+                  </button>
+                </div>`;
+              tr.appendChild(tdAcciones);
+
+              tbody.appendChild(tr);
+            });
+          })
+          .catch((error) =>
+            console.error(
+              `Error cargando productos para cat ${categoriaId}:`,
+              error
+            )
+          );
+      }
+
+      function cargarCategoriasYProductos() {
+        const container = document.getElementById("categorias-container");
+        if (!container) {
+          console.error(
+            "El contenedor principal 'categorias-container' no existe."
+          );
+          return;
+        }
+
+        // Primero, obtenemos las categorías
+        obtenerCategorias().then((categorias) => {
+          if (categorias.length === 0) {
+            container.innerHTML =
+              '<p class="text-center">No se encontraron categorías para mostrar.</p>';
+            return;
+          }
+
+          container.innerHTML = "";
+          categorias.forEach((categoria) => {
+            const tbodyId = `tbody-categoria-${categoria.id}`;
+
+            const cardDiv = document.createElement("div");
+            cardDiv.className = "card mb-4";
+
+            cardDiv.innerHTML = `
+                <div class="card-body">
+                  <h5 class="card-title text-primary fw-bold">${categoria.categoria}</h5>
+                  <table class="table table-striped table-bordered table-hover">
+                    <thead class="table">
+                      <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Status</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody id="${tbodyId}">
+                      <tr><td colspan="5" class="text-center">Cargando productos...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              `;
+
+            container.appendChild(cardDiv);
+            cargarProductosPorCategoria(categoria.id, tbodyId);
+          });
+        });
+      }
+      
+      function cambiarEstado(id, isActivo) {
+        const requestOptions = {
+          method: "PATCH",
+          redirect: "follow",
+        };
+
+        fetch(`${url}/api/productos/${id}`, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            alert("Estado Actualizado");
+            location.reload();
+          })
+          .catch((error) => console.error(error));
+      }
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
